@@ -13,6 +13,7 @@ void playGame()
     moveToCorner();
     pc.sendData(String("STOCKFISH ") + String(result));
     pc.waitForAcknowledgement();
+    uint8_t moveCount = 0;
     for (;;)
     {
         pc.waitForData();
@@ -41,7 +42,10 @@ void playGame()
             break;
         }
         else if (pcData.startsWith("True") or pcData.startsWith("False")) {
-            Serial.println(pcData);
+            if (++moveCount == 5) {
+                moveCount = 0;
+                homeMotors();
+            }
             makeMove(&pcData);
             moveToCorner();
             pc.sendAcknowledgement();

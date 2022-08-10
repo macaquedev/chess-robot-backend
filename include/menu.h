@@ -315,11 +315,22 @@ void extruderMovementMenu(double delta)
 }
 
 void displayMessage(String *message) {
+    clearDisplay();
     u8g.firstPage();
+    String lines[4];
+    String delimiters = "\n\r";
+    splitStringIntoTokens(message, 4, &delimiters, lines);
     do
     {
         u8g.setFont(DISPLAY_SMALLFONT);
-        u8g.drawStr(0, 16, message->c_str());
+        uint8_t yCoord = 0;
+        for (uint8_t i = 0; i < 4; i++) {
+            if (not lines[i].compareTo("")) {
+                break;
+            }
+            yCoord += 16; 
+            u8g.drawStr(0, yCoord, lines[i].c_str());
+        }
     } while (u8g.nextPage());
 }
 

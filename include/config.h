@@ -134,7 +134,7 @@ public:
 
 Vector3 currentPosition(0, 0, 0);
 
-double PieceHeights[] = {7.4, 6.5, 5.3, 7.1, 5.0, 4.5};
+double PieceHeights[] = {7.4, 6.5, 5.4, 7.1, 5.0, 4.5};
 
 Vector2 H1Pos(5, 5);
 Vector2 OneSquareUp(0, 3); 

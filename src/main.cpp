@@ -3,13 +3,13 @@
 
 void setup()
 {
-    String text = "ChessRobotOS 1.0\n\nConnecting to PC...";
+    String text = "ChessRobotOS 1.0\nConnecting to PC...";
     displayMessage(&text);
     pc.begin();
-    text = "ChessRobotOS 1.0\n\nConnected!";
+    text = "ChessRobotOS 1.0\nConnected!";
     displayMessage(&text);
     delay(1000);
-    text = "ChessRobotOS 1.0\n\nHoming motors...";
+    text = "ChessRobotOS 1.0\nHoming motors...";
     displayMessage(&text);
     delay(1000);
 
