@@ -38,8 +38,8 @@ void PythonCommunication::waitForAcknowledgement()
     for (;;)
     {
         waitForData();
-        readData(&data); 
-        Serial.println(data);
+        readData(&data);
+        Serial.println(data.c_str());
         if (data == String("OK\r"))
         {
             return;
