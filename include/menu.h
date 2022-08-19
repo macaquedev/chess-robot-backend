@@ -89,6 +89,67 @@ uint8_t displayMenuAndWaitForAnswer(uint8_t numEntries, char (*menuEntries)[18])
     return currentMenuEntry + currentLine;
 }
 
+bool selectColourMenu()
+{
+    bool currentLine = true;
+    bool pressed = false;
+    int previousEncoderPosition = encoder.getPosition();
+    int currentEncoderPosition = previousEncoderPosition;
+    for (;;)
+    {
+        clearDisplay();
+        u8g.firstPage();
+        do
+        {
+            u8g.setFont(DISPLAY_FONT);
+            u8g.drawStr(0, 10, F("Play as: "));
+            u8g.drawStr(16, 42, F("White"));
+            u8g.drawStr(16, 56, F("Black"));
+            u8g.drawStr(0, currentLine ? 42 : 56, F(">"));
+        } while (u8g.nextPage());
+        for (;;)
+        {
+            encoder.tick();
+            previousEncoderPosition = currentEncoderPosition;
+            currentEncoderPosition = encoder.getPosition();
+            if (encoderButtonPressed())
+            {
+                debounceEncoderButton();
+                shortBeep();
+                pressed = true;
+                break;
+            }
+            else if (currentEncoderPosition < previousEncoderPosition)
+            {
+                if (not currentLine)
+                {
+                    currentLine = true;
+                    break;
+                }
+                else
+                {
+                    shortBeep();
+                }
+            }
+            else if (currentEncoderPosition > previousEncoderPosition)
+            {
+                if (currentLine)
+                {
+                    currentLine = false;
+                    break;
+                }
+                else
+                {
+                    shortBeep();
+                }
+            }
+        }
+        if (pressed)
+            break;
+    }
+    return currentLine;
+}
+
 void sliderMenu(String *title, int minimum, int maximum, int delta, int *result)
 {
     double currentEncoderPosition = encoder.getPosition();
@@ -261,6 +322,11 @@ void extruderMovementMenu(double delta)
     double currentEncoderPosition = encoder.getPosition();
     double previousEncoderPosition = currentEncoderPosition;
     bool pressed = false;
+
+    #ifndef V1_ARM
+    eStepper.setAcceleration(50000);
+    #endif
+
     for (;;)
     {
         clearDisplay();
@@ -312,9 +378,11 @@ void extruderMovementMenu(double delta)
         if (pressed)
             break;
     }
+    eStepper.setAcceleration(E_MAX_ACCEL);
 }
 
-void displayMessage(String *message) {
+void displayMessage(String *message)
+{
     clearDisplay();
     u8g.firstPage();
     String lines[4];
@@ -324,17 +392,20 @@ void displayMessage(String *message) {
     {
         u8g.setFont(DISPLAY_SMALLFONT);
         uint8_t yCoord = 0;
-        for (uint8_t i = 0; i < 4; i++) {
-            if (not lines[i].compareTo("")) {
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            if (not lines[i].compareTo(""))
+            {
                 break;
             }
-            yCoord += 16; 
+            yCoord += 16;
             u8g.drawStr(0, yCoord, lines[i].c_str());
         }
     } while (u8g.nextPage());
 }
 
-void successfulMoveDisplay(String *move) {
+void successfulMoveDisplay(String *move)
+{
     u8g.firstPage();
     do
     {
@@ -356,16 +427,19 @@ void dialogueBox(String *data)
     {
         u8g.setFont(DISPLAY_SMALLFONT);
         uint8_t yCoord = 0;
-        for (uint8_t i = 0; i < 4; i++) {
-            if (not lines[i].compareTo("")) {
+        for (uint8_t i = 0; i < 4; i++)
+        {
+            if (not lines[i].compareTo(""))
+            {
                 break;
             }
-            yCoord += 16; 
+            yCoord += 16;
             u8g.drawStr(0, yCoord, lines[i].c_str());
         }
         u8g.drawStr(0, 64, F("Press encoder to continue"));
     } while (u8g.nextPage());
-    while (not encoderButtonPressed());
+    while (not encoderButtonPressed())
+        ;
     debounceEncoderButton();
     shortBeep();
 }

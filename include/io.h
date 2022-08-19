@@ -59,7 +59,7 @@ void pickUpPiece(Pieces piece)
     }
     currentPosition.e = PieceHeights[piece] * E_STEPS_PER_CM;
     digitalWrite(ELECTROMAGNET_PIN, HIGH);
-    delay(100);
+    delay(200);
 
     bringMotorToEndstop(&eStepper, E_ENDSTOP, true);
     currentPosition.e = 0;
@@ -67,12 +67,12 @@ void pickUpPiece(Pieces piece)
 
 void putDownPiece(Pieces piece)
 {
-    eStepper.move((PieceHeights[piece] - 0.2) * E_STEPS_PER_CM);
+    eStepper.move((PieceHeights[piece] - 0.1) * E_STEPS_PER_CM);
     while (eStepper.distanceToGo() > 0)
     {
         eStepper.run();
     }
-    currentPosition.e = (PieceHeights[piece] - 0.2) * E_STEPS_PER_CM;
+    currentPosition.e = (PieceHeights[piece] - 0.1) * E_STEPS_PER_CM;
     digitalWrite(ELECTROMAGNET_PIN, LOW);
     delay(100);
 
@@ -236,9 +236,9 @@ void movePiece(Pieces pieceType, uint8_t startingSquare, uint8_t endingSquare)
     putDownPiece(pieceType);
 }
 
-void moveToCorner()
+void moveToCorner(bool colour)
 {
-    moveToPosition(0, Y_MAX_POS, PIECE_MOVE_SPEED);
+    moveToPosition(0, colour ? Y_MAX_POS : 0, PIECE_MOVE_SPEED);
 }
 
 void makeMove(String *data)
@@ -268,7 +268,7 @@ void makeMove(String *data)
             if (not pieceColour->compareTo("True"))
                 castle(4, 6, 7, 5);
             else
-                castle(60, 61, 63, 62);
+                castle(60, 62, 63, 61);
         }
     }
     else

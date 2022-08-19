@@ -28,7 +28,7 @@ void fillEEPROM()
 void positionSelectionMenu(Vector2 *position)
 {
     moveToPosition(position, PIECE_MOVE_SPEED);
-    eStepper.moveTo(9 * E_STEPS_PER_CM);
+    eStepper.moveTo(E_MAX_POS * E_STEPS_PER_CM);
     while (eStepper.distanceToGo() != 0)
     {
         eStepper.run();

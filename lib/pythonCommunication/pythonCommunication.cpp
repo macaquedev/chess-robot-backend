@@ -39,7 +39,6 @@ void PythonCommunication::waitForAcknowledgement()
     {
         waitForData();
         readData(&data);
-        Serial.println(data.c_str());
         if (data == String("OK\r"))
         {
             return;

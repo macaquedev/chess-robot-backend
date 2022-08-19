@@ -8,6 +8,7 @@ void playGame()
     char menuEntries[][18] = {"Play against AI", "Play Online"};
     uint8_t answer = displayMenuAndWaitForAnswer(2, menuEntries);
     debounceEncoderButton();
+    bool colour = true;
     switch (answer)
     {
     case 0:
@@ -15,8 +16,9 @@ void playGame()
         String title = "AI Difficulty";
         int result = 1500;
         sliderMenu(&title, 1000, 3000, 100, &result);
-        moveToCorner();
-        pc.sendData(String("STOCKFISH ") + String(result));
+        colour = selectColourMenu();
+        moveToCorner(colour);
+        pc.sendData(String("STOCKFISH ") + String(result) + String(" ") + String(colour));
         pc.waitForAcknowledgement();
         break;
     }
@@ -24,11 +26,17 @@ void playGame()
     case 1:
     {
         pc.sendData(String("LICHESS"));
-        pc.waitForAcknowledgement();
-        digitalWrite(13, HIGH);
-        delay(1000);
-        digitalWrite(13, LOW);
-        moveToCorner();
+        pc.waitForData();
+        String pcData;
+        pc.readData(&pcData);
+        pcData = pcData.substring(1);
+        displayMessage(&pcData);
+        pc.sendAcknowledgement();
+        pc.waitForData();
+        pc.readData(&pcData);
+        colour = (bool)pcData.toInt();
+        moveToCorner(colour);
+        pc.sendAcknowledgement();
         break;
     }
 
@@ -76,8 +84,14 @@ void playGame()
                 homeMotors();
             }
             makeMove(&pcData);
-            moveToCorner();
+            moveToCorner(colour);
             pc.sendAcknowledgement();
+        }
+        else if (pcData.startsWith("1")) {
+            colour = true;
+        }
+        else if (pcData.startsWith("0")) {
+            colour = false;
         }
     }
 }

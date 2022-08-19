@@ -23,32 +23,49 @@
 #define Y_STEPPER_DIR 48
 #define Y_STEPPER_EN A8
 
+// #define V1_ARM
+
+#ifdef V1_ARM
 #define E_STEPPER_PINS A12, A10, 44, A5
+#define E_STEPS_PER_CM 512.8
+
+#define E_MAX_SPEED 800
+#define E_MAX_ACCEL 700
+#define E_MAX_POS 9
+
+#else 
+#define E_STEPPER_STEP A6
+#define E_STEPPER_DIR A7 
+#define E_STEPPER_EN A2 
+#define E_STEPS_PER_CM 45
+
+#define E_MAX_SPEED 500
+#define E_MAX_ACCEL 15000
+#define E_MAX_POS 8.5
+
+#endif
 
 #define X_STEPS_PER_CM 51
 #define Y_STEPS_PER_CM 51
-#define E_STEPS_PER_CM 512.8
 
 #define X_ENDSTOP 3
 #define Y_ENDSTOP 14
 #define E_ENDSTOP 40
 
 #define X_MAX_SPEED 500
-#define X_MAX_ACCEL 1500
+#define X_MAX_ACCEL 4000
 #define Y_MAX_SPEED 500
-#define Y_MAX_ACCEL 1500
-#define E_MAX_SPEED 800
-#define E_MAX_ACCEL 700
+#define Y_MAX_ACCEL 4000
+
 
 #define X_MAX_POS 35
 #define Y_MAX_POS 28 // so the extruder doesn't hit the camera mount!
-#define E_MAX_POS 9
 
 #define DISPLAY_PINS 23, 17, 16
 #define DISPLAY_FONT u8g_font_profont11
 #define DISPLAY_SMALLFONT u8g_font_profont10
 
-#define PIECE_MOVE_SPEED 16
+#define PIECE_MOVE_SPEED 25
 
 #define ELECTROMAGNET_PIN A9
 
@@ -134,7 +151,7 @@ public:
 
 Vector3 currentPosition(0, 0, 0);
 
-double PieceHeights[] = {7.4, 6.5, 5.4, 7.1, 5.0, 4.5};
+double PieceHeights[] = {7.5, 6.6, 5.4, 7.05, 4.7, 4.1};
 
 Vector2 H1Pos(5, 5);
 Vector2 OneSquareUp(0, 3); 
@@ -146,7 +163,12 @@ Vector2 OneSquareLeft(3, 0);
 
 AccelStepper xStepper(AccelStepper::MotorInterfaceType::DRIVER, X_STEPPER_STEP, X_STEPPER_DIR);
 AccelStepper yStepper(AccelStepper::MotorInterfaceType::DRIVER, Y_STEPPER_STEP, Y_STEPPER_DIR);
+
+#ifdef V1_ARM
 AccelStepper eStepper(AccelStepper::MotorInterfaceType::FULL4WIRE, E_STEPPER_PINS);
+#else
+AccelStepper eStepper(AccelStepper::MotorInterfaceType::DRIVER, E_STEPPER_STEP, E_STEPPER_DIR);
+#endif
 
 U8GLIB_ST7920_128X64_1X u8g(DISPLAY_PINS);
 
