@@ -40,6 +40,7 @@ void longBeep()
 
 void bringMotorToEndstop(AccelStepper *motor, uint16_t endstop, bool reverseDirections)
 {
+    motor->setSpeed(100);
     motor->move(100000 * (reverseDirections ? -1 : 1));
     while (digitalRead(endstop))
     {
@@ -80,7 +81,7 @@ void putDownPiece(Pieces piece)
     currentPosition.e = 0;
 }
 
-void moveToPositionAsync(double x, double y, double speed)
+void moveToPositionAsync(double x, double y, double speed, double accelFactor)
 {
     int xSteps = -x * X_STEPS_PER_CM;
     int ySteps = -y * Y_STEPS_PER_CM;
@@ -94,7 +95,7 @@ void moveToPositionAsync(double x, double y, double speed)
     if (dx == 0)
     {
         ySpeed = speed * X_STEPS_PER_CM;
-        yAccel = Y_MAX_ACCEL;
+        yAccel = Y_MAX_ACCEL * accelFactor;
         yStepper.setMaxSpeed(ySpeed);
         yStepper.setAcceleration(yAccel);
         yStepper.moveTo(ySteps <= 0 ? ySteps : 0);
@@ -102,7 +103,7 @@ void moveToPositionAsync(double x, double y, double speed)
     else if (dy == 0)
     {
         xSpeed = speed * Y_STEPS_PER_CM;
-        xAccel = X_MAX_ACCEL;
+        xAccel = X_MAX_ACCEL * accelFactor;
         xStepper.setMaxSpeed(xSpeed);
         xStepper.setAcceleration(xAccel);
         xStepper.moveTo(xSteps <= 0 ? xSteps : 0);
@@ -114,8 +115,8 @@ void moveToPositionAsync(double x, double y, double speed)
         xSpeed = speed / dp * dx * X_STEPS_PER_CM;
         ySpeed = speed / dp * dy * Y_STEPS_PER_CM;
 
-        xAccel = X_MAX_ACCEL / dp * dx;
-        yAccel = Y_MAX_ACCEL / dp * dy;
+        xAccel = X_MAX_ACCEL / dp * dx * accelFactor;
+        yAccel = Y_MAX_ACCEL / dp * dy * accelFactor;
 
         xStepper.setMaxSpeed(xSpeed);
         yStepper.setMaxSpeed(ySpeed);
@@ -129,14 +130,23 @@ void moveToPositionAsync(double x, double y, double speed)
     currentPosition.y = y;
 }
 
+void moveToPositionAsync(double x, double y, double speed) {
+    moveToPositionAsync(x, y, speed, 1);
+}
+
 void moveToPositionAsync(Vector2 *position, double speed)
 {
     moveToPositionAsync(position->x, position->y, speed);
 }
 
-void moveToPosition(double x, double y, double speed)
+void moveToPositionAsync(Vector2 *position, double speed, double accelFactor)
 {
-    moveToPositionAsync(x, y, speed);
+    moveToPositionAsync(position->x, position->y, speed, accelFactor);
+}
+
+void moveToPosition(double x, double y, double speed, double accelFactor)
+{
+    moveToPositionAsync(x, y, speed, accelFactor);
     while (xStepper.distanceToGo() != 0 or yStepper.distanceToGo() != 0)
     {
         xStepper.run();
@@ -146,27 +156,45 @@ void moveToPosition(double x, double y, double speed)
     resetSpeedsAndAccelerations();
 }
 
-void moveToPosition(Vector2 *position, double speed)
+void moveToPosition(double x, double y, double speed)
 {
-    moveToPosition(position->x, position->y, speed);
+    moveToPosition(x, y, speed, 1);
 }
 
-void moveToSquare(uint8_t square, double speed)
+void moveToPosition(Vector2 *position, double speed)
+{
+    moveToPosition(position->x, position->y, speed, 1);
+}
+
+void moveToPosition(Vector2 *position, double speed, double accelFactor) {
+    moveToPosition(position->x, position->y, speed, accelFactor);
+}
+
+void moveToSquare(uint8_t square, double speed, double accelFactor)
 {
     uint8_t rank = square >> 3;
     uint8_t file = square & 7;
 
     Vector2 target = H1Pos + OneSquareLeft * (7 - file) + OneSquareUp * rank;
-    moveToPosition(&target, speed);
+    moveToPosition(&target, speed, accelFactor);
 }
 
-void moveToSquareAsync(uint8_t square, double speed)
+void moveToSquare(uint8_t square, double speed) {
+    moveToSquare(square, speed, 1);
+}
+
+void moveToSquareAsync(uint8_t square, double speed, double accelFactor)
 {
     uint8_t rank = square >> 3;
     uint8_t file = square - (rank << 3);
 
     Vector2 target = H1Pos + OneSquareLeft * (7 - file) + OneSquareUp * rank;
-    moveToPositionAsync(&target, speed);
+    moveToPositionAsync(&target, speed, accelFactor);
+}
+
+void moveToSquareAsync(uint8_t square, double speed)
+{
+    moveToSquareAsync(square, speed, 1);
 }
 
 void splitStringIntoTokens(String *input, int numTokens, String *delimiters, String tokens[])
@@ -228,17 +256,44 @@ Pieces characterToPieceType(String *s)
     }
 }
 
+Pieces characterToPieceType(long s)
+{
+    switch (s)
+    {
+    case 1:
+        return Pieces::PAWN;
+    case 2:
+        return Pieces::KNIGHT;
+    case 3:
+        return Pieces::BISHOP;
+    case 4:
+        return Pieces::ROOK;
+    case 5:
+        return Pieces::QUEEN;
+    case 6:
+        return Pieces::KING;
+    default:
+        return Pieces::PAWN;
+    }
+}
+
+
 void movePiece(Pieces pieceType, uint8_t startingSquare, uint8_t endingSquare)
 {
     moveToSquare(startingSquare, PIECE_MOVE_SPEED);
     pickUpPiece(pieceType);
-    moveToSquare(endingSquare, PIECE_MOVE_SPEED);
+    double accelFactor = 1;
+    if (pieceType == Pieces::BISHOP or pieceType == Pieces::QUEEN or pieceType == Pieces::KING) {
+        accelFactor = 0.3;
+    }
+    moveToSquare(endingSquare, PIECE_MOVE_SPEED, accelFactor);
     putDownPiece(pieceType);
+    
 }
 
 void moveToCorner(bool colour)
 {
-    moveToPosition(0, colour ? Y_MAX_POS : 0, PIECE_MOVE_SPEED);
+    moveToPosition(0, colour ? Y_MAX_POS : 0, PIECE_MOVE_SPEED, 1);
 }
 
 void makeMove(String *data)
@@ -273,9 +328,9 @@ void makeMove(String *data)
     }
     else
     {
-        if (capturedPiece->compareTo("False"))
+        if (capturedPiece->compareTo("0"))
         {
-            dumpPiece(endPos->toInt(), characterToPieceType(capturedPiece));
+            dumpPiece(endPos->toInt(), characterToPieceType(capturedPiece->toInt()));
         }
         movePiece(characterToPieceType(pieceType), startPos->toInt(), endPos->toInt());
         if (enPassantSquare->compareTo("False"))

@@ -240,7 +240,7 @@ void calibrationWizard()
         }
     }
 
-    moveToPosition(0, 0, PIECE_MOVE_SPEED);
+    moveToPosition(0.0, 0.0, PIECE_MOVE_SPEED);
 }
 
 #endif

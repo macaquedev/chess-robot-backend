@@ -39,7 +39,7 @@ void PythonCommunication::waitForAcknowledgement()
     {
         waitForData();
         readData(&data);
-        if (data == String("OK\r"))
+        if (data.startsWith(String("OK\r")))
         {
             return;
         }

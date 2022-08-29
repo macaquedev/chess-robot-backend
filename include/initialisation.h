@@ -5,8 +5,20 @@
 
 void homeMotors()
 {
+    eStepper.moveTo(0);
+    eStepper.setMaxSpeed(500);
+    eStepper.setAcceleration(500);
+    while (eStepper.distanceToGo() != 0) eStepper.run();
     bringMotorToEndstop(&eStepper, E_ENDSTOP, true);
+    xStepper.moveTo(0);
+    xStepper.setMaxSpeed(500);
+    xStepper.setAcceleration(500);
+    while (xStepper.distanceToGo() != 0) xStepper.run();
     bringMotorToEndstop(&xStepper, X_ENDSTOP, false);
+    yStepper.moveTo(0);
+    yStepper.setMaxSpeed(500);
+    yStepper.setAcceleration(500);
+    while (yStepper.distanceToGo() != 0) yStepper.run();
     bringMotorToEndstop(&yStepper, Y_ENDSTOP, false);
     currentPosition.x = 0;
     currentPosition.y = 0;

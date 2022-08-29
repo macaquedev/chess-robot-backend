@@ -19,7 +19,6 @@ void playGame()
         colour = selectColourMenu();
         moveToCorner(colour);
         pc.sendData(String("STOCKFISH ") + String(result) + String(" ") + String(colour));
-        pc.waitForAcknowledgement();
         break;
     }
 
@@ -43,7 +42,6 @@ void playGame()
     default:
         break;
     }
-
     String pcData;
     uint8_t moveCount = 0;
     for (;;)
