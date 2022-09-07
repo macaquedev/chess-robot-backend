@@ -170,29 +170,30 @@ void moveToPosition(Vector2 *position, double speed, double accelFactor) {
     moveToPosition(position->x, position->y, speed, accelFactor);
 }
 
-void moveToSquare(uint8_t square, double speed, double accelFactor)
+void moveToSquare(int8_t square, double speed, double accelFactor)
 {
-    uint8_t rank = square >> 3;
-    uint8_t file = square & 7;
-
+    int8_t rank = square >> 3;
+    int8_t file = square & 7;
+    Serial.print(rank);
+    Serial.print(" ");
+    Serial.println(file);
     Vector2 target = H1Pos + OneSquareLeft * (7 - file) + OneSquareUp * rank;
     moveToPosition(&target, speed, accelFactor);
 }
 
-void moveToSquare(uint8_t square, double speed) {
+void moveToSquare(int8_t square, double speed) {
     moveToSquare(square, speed, 1);
 }
 
-void moveToSquareAsync(uint8_t square, double speed, double accelFactor)
+void moveToSquareAsync(int8_t square, double speed, double accelFactor)
 {
     uint8_t rank = square >> 3;
     uint8_t file = square - (rank << 3);
-
     Vector2 target = H1Pos + OneSquareLeft * (7 - file) + OneSquareUp * rank;
     moveToPositionAsync(&target, speed, accelFactor);
 }
 
-void moveToSquareAsync(uint8_t square, double speed)
+void moveToSquareAsync(int8_t square, double speed)
 {
     moveToSquareAsync(square, speed, 1);
 }
@@ -281,20 +282,18 @@ void movePiece(Pieces pieceType, uint8_t startingSquare, uint8_t endingSquare)
 
 void castle(uint8_t kingStartSquare, uint8_t kingEndSquare, uint8_t rookStartSquare, uint8_t rookEndSquare)
 {
-    /*
-    moveToSquare(kingStartSquare, PIECE_MOVE_SPEED);
+    int delta = kingStartSquare > 40 ? 8 : -8;
+    moveToSquare(kingStartSquare, PIECE_MOVE_SPEED, 0.3);
     pickUpPiece(Pieces::KING);
-    moveToSquare(kingEndSquare, PIECE_MOVE_SPEED);
+    moveToSquare(kingEndSquare, PIECE_MOVE_SPEED, 0.3);
     putDownPiece(Pieces::KING);
     moveToSquare(rookStartSquare, PIECE_MOVE_SPEED);
     pickUpPiece(Pieces::ROOK);
-    moveToSquare(rookEndSquare, PIECE_MOVE_SPEED);
+    moveToSquare(rookStartSquare + delta, PIECE_MOVE_SPEED, 0.3);
+    moveToSquare(rookEndSquare + delta, PIECE_MOVE_SPEED, 0.3);
+    moveToSquare(rookEndSquare, PIECE_MOVE_SPEED, 0.3);
     putDownPiece(Pieces::ROOK);
-    */
-    movePiece(Pieces::KING, kingStartSquare, kingEndSquare);
-    movePiece(Pieces::ROOK, rookStartSquare, rookEndSquare);
 }
-
 
 void moveToCorner(bool colour)
 {

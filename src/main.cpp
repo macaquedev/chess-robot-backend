@@ -38,8 +38,6 @@ void setup() {
     fillEEPROM();
 
     homeMotors();
-
-    // homeMotors();
 }
 
 void loop()
