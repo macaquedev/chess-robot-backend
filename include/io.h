@@ -214,18 +214,6 @@ void splitStringIntoTokens(String *input, int numTokens, String *delimiters, Str
     }
 }
 
-void castle(uint8_t kingStartSquare, uint8_t kingEndSquare, uint8_t rookStartSquare, uint8_t rookEndSquare)
-{
-    moveToSquare(kingStartSquare, PIECE_MOVE_SPEED);
-    pickUpPiece(Pieces::KING);
-    moveToSquare(kingEndSquare, PIECE_MOVE_SPEED);
-    putDownPiece(Pieces::KING);
-    moveToSquare(rookStartSquare, PIECE_MOVE_SPEED);
-    pickUpPiece(Pieces::ROOK);
-    moveToSquare(rookEndSquare, PIECE_MOVE_SPEED);
-    putDownPiece(Pieces::ROOK);
-}
-
 void dumpPiece(uint8_t square, Pieces pieceType)
 {
     moveToSquare(square, PIECE_MOVE_SPEED);
@@ -290,6 +278,23 @@ void movePiece(Pieces pieceType, uint8_t startingSquare, uint8_t endingSquare)
     putDownPiece(pieceType);
     
 }
+
+void castle(uint8_t kingStartSquare, uint8_t kingEndSquare, uint8_t rookStartSquare, uint8_t rookEndSquare)
+{
+    /*
+    moveToSquare(kingStartSquare, PIECE_MOVE_SPEED);
+    pickUpPiece(Pieces::KING);
+    moveToSquare(kingEndSquare, PIECE_MOVE_SPEED);
+    putDownPiece(Pieces::KING);
+    moveToSquare(rookStartSquare, PIECE_MOVE_SPEED);
+    pickUpPiece(Pieces::ROOK);
+    moveToSquare(rookEndSquare, PIECE_MOVE_SPEED);
+    putDownPiece(Pieces::ROOK);
+    */
+    movePiece(Pieces::KING, kingStartSquare, kingEndSquare);
+    movePiece(Pieces::ROOK, rookStartSquare, rookEndSquare);
+}
+
 
 void moveToCorner(bool colour)
 {
