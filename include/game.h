@@ -5,8 +5,8 @@
 void playGame()
 {
 
-    char menuEntries[][18] = {"Play against AI", "Play Online"};
-    uint8_t answer = displayMenuAndWaitForAnswer(2, menuEntries);
+    char menuEntries[][18] = {"Play Stockfish", "Play OscarAI", "Play Online"};
+    uint8_t answer = displayMenuAndWaitForAnswer(3, menuEntries);
     debounceEncoderButton();
     bool colour = true;
     switch (answer)
@@ -21,8 +21,14 @@ void playGame()
         pc.sendData(String("STOCKFISH ") + String(result) + String(" ") + String(colour));
         break;
     }
-
     case 1:
+    {
+        colour = selectColourMenu();
+        moveToCorner(colour);
+        pc.sendData(String("OSCAR ") + String(colour));
+        break;
+    }
+    case 2:
     {
         pc.sendData(String("LICHESS"));
         pc.waitForData();
