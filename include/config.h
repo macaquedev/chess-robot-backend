@@ -14,10 +14,10 @@
 #define ENCODER_BUTTON 35
 #define STOP_BUTTON 41
 #define BEEPER_PIN 37
+#define X_STEPPER_EN 38
 
 #define X_STEPPER_STEP A0
 #define X_STEPPER_DIR A1
-#define X_STEPPER_EN 38
 
 #define Y_STEPPER_STEP 46
 #define Y_STEPPER_DIR 48
